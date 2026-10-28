@@ -298,7 +298,7 @@ function renderShell() {
       <div class="header-top">
         <div class="logo-area">
           <strong>انبارین</strong>
-          <span class="version">v1.4.0</span>
+          <span class="version">v1.4.1</span>
           <span class="role-badge" id="roleBadge">—</span>
         </div>
         <div class="header-stats" id="headerStats"></div>
