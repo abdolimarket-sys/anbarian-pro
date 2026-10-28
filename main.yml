@@ -1,9 +1,11 @@
 name: Build Anbarin APK
 
-on:
-  push:
-    branches: [main, master]
+"on":
   workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
 
 jobs:
   build-apk:
@@ -11,26 +13,29 @@ jobs:
     timeout-minutes: 40
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Install & build web
+      - name: Install and build web
         run: |
           npm ci --registry https://registry.npmjs.org/
           npm run build
           test -f dist/index.html
 
-      - uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: "17"
 
-      - name: Prepare Android SDK (no obsolete tools package)
+      - name: Prepare Android SDK
         run: |
           export ANDROID_HOME=/usr/local/lib/android/sdk
           export ANDROID_SDK_ROOT=$ANDROID_HOME
@@ -44,7 +49,7 @@ jobs:
           yes | "$SDKMANAGER" --licenses >/tmp/lic.txt || true
           "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Sync web into Android project
+      - name: Sync Capacitor
         run: npx cap sync android
 
       - name: Build debug APK
@@ -53,7 +58,8 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: anbarin-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
